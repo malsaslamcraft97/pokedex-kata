@@ -1,0 +1,75 @@
+.tabsWrapper {
+  margin-top: 36px;
+  width: 100%;
+}
+
+/* Glass tray */
+.tabs {
+  display: inline-flex;
+  align-items: center;
+
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 16px 40px rgba(0, 0, 0, 0.05);
+}
+
+/* Individual tab */
+.tab {
+  position: relative;
+
+  padding: 12px 26px;
+  height: 44px;
+  border-radius: 14px;
+
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: capitalize;
+
+  color: #7b8597;
+
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+/* Hover */
+.tab:hover {
+  color: #1f2a44;
+}
+
+/* Active tab */
+.active {
+  background: rgba(255, 255, 255, 0.95);
+  color: #1f2a44;
+
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* Green indicator (MATCH DESIGN WIDTH) */
+.active::after {
+  content: "";
+  position: absolute;
+
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 55px; /* wider like design */
+  height: 3px; /* thicker like design */
+
+  background: lighten($color: #4caf50, $amount: 15);
+  border-radius: 4px;
+}
+
+/* Panel */
+.panel {
+  margin-top: 40px;
+  width: 100%; /* FORCE FULL WIDTH */
+  min-width: 0; /* prevents flex shrink bug */
+}

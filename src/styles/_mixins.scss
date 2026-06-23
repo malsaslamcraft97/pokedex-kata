@@ -1,0 +1,32 @@
+@use "./variables" as *;
+
+@mixin gradient-bg {
+  background: linear-gradient(135deg, $color-bg-start 0%, $color-bg-end 100%);
+}
+
+@mixin card-base {
+  cursor: pointer;
+  background: $color-card-bg;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-soft;
+  transition: all 0.25s ease;
+}
+
+@mixin hover-lift {
+  transform: translateY(-4px);
+  box-shadow: $shadow-hover;
+}
+
+@mixin card-tag {
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: $color-primary;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+@mixin hover-focus-action {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(255, 77, 79, 0.45);
+}

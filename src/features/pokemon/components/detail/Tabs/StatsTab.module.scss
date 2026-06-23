@@ -1,0 +1,53 @@
+@use "@/styles/variables" as *;
+
+.container {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 360px; /* prevent width collapse */
+  gap: 40px;
+  align-items: start;
+}
+
+/* ===== LEFT COLUMN ===== */
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.battleOverviewContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* ===== RIGHT COLUMN (if exists later) ===== */
+.right {
+  width: 100%;
+}
+
+/* ===== TABLET ===== */
+@media (max-width: $bp-tablet) {
+  .container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .left,
+  .right {
+    width: 100%;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: $bp-mobile) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+
+  .battleOverviewContainer {
+    width: 100%;
+  }
+}

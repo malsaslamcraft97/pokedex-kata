@@ -1,0 +1,309 @@
+@use "@/styles/variables" as *;
+
+.container {
+  display: grid;
+  grid-template-columns: 0.8fr 360px;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+/* ===== LEFT ===== */
+.left {
+  display: flex;
+  flex-direction: column;
+}
+
+.description {
+  font-size: 18px;
+  line-height: 1.7;
+  color: #5f6678;
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 20px;
+}
+
+.baseStatsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ===== CARD ===== */
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.breedingCard {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.88),
+    rgba(255, 255, 255, 0.72)
+  );
+
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+
+  padding: 40px;
+  border-radius: 34px;
+
+  box-shadow: 0 40px 80px rgba(31, 42, 68, 0.06),
+    0 12px 24px rgba(31, 42, 68, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* ===== TITLE ===== */
+
+.cardTitle {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1f2a44;
+  margin: 0;
+}
+
+/* ===== ROW ===== */
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  font-size: 17px;
+  color: #1f2a44;
+}
+
+/* ===== EGG GROUPS ===== */
+
+.eggGroups {
+  display: flex;
+  gap: 14px;
+}
+
+.eggBadge {
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  text-transform: capitalize;
+}
+
+.eggCycles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2a44;
+}
+
+/* Dynamic styles */
+.monster {
+  background: #e9edf5;
+  color: #4a5568;
+}
+
+.dragon {
+  background: linear-gradient(135deg, #cfd6ff, #e2e6ff);
+  color: #4c6ef5;
+}
+
+.grass {
+  background: linear-gradient(135deg, #e8f5e9, #d7f3dc);
+  color: #43a047;
+}
+
+.defaultEgg {
+  background: #eef2f7;
+  color: #6f7687;
+}
+
+/* ===== GENDER ===== */
+
+.gender {
+  display: flex;
+  gap: 14px;
+}
+
+.genderItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.male {
+  color: #4c6ef5;
+}
+
+.female {
+  color: #ff4d6d;
+}
+
+/* ===== EGG CYCLES ===== */
+
+.row:last-child span:last-child {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2a44;
+}
+
+/* ================= RIGHT: TOTAL CARD ================= */
+
+.totalCard {
+  padding: 24px 28px;
+
+  border-radius: 28px;
+
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.92),
+    rgba(255, 255, 255, 0.82)
+  );
+
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+
+  box-shadow: 0 20px 50px rgba(31, 42, 68, 0.05),
+    0 6px 16px rgba(31, 42, 68, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Header row */
+
+.totalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.totalLabel {
+  font-size: 20px; /* smaller like design */
+  font-weight: 600; /* not heavy */
+  color: #1f2a44;
+}
+
+.totalValue {
+  font-size: 32px; /* balanced */
+  font-weight: 700; /* not ultra bold */
+  color: #334155; /* softer than black */
+}
+
+/* Track */
+
+.totalBarTrack {
+  position: relative;
+  height: 16px; /* thinner like design */
+  border-radius: 999px;
+
+  background: rgba(31, 42, 68, 0.08);
+  overflow: hidden;
+}
+
+/* Softer, smoother gradient */
+
+.totalBarFill {
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    90deg,
+    #6abf69 0%,
+    #5c7bd9 35%,
+    #b05cd6 55%,
+    #e05273 75%,
+    #f59e42 100%
+  );
+}
+
+/* ====== TABLET ====== */
+@media (max-width: $bp-tablet) {
+  .container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .right {
+    order: 2;
+  }
+
+  .breedingCard {
+    padding: 28px;
+    border-radius: 26px;
+  }
+
+  .cardTitle {
+    font-size: 22px;
+  }
+
+  .totalCard {
+    padding: 20px 22px;
+    border-radius: 22px;
+  }
+}
+
+/* ======= MOBILE ====== */
+@media (max-width: $bp-mobile) {
+  .container {
+    gap: 24px;
+  }
+
+  .description {
+    font-size: 15px;
+  }
+
+  .sectionTitle {
+    font-size: 18px;
+  }
+
+  .breedingCard {
+    padding: 20px;
+    gap: 22px;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .eggGroups {
+    flex-wrap: wrap;
+  }
+
+  .eggBadge {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+
+  .genderItem {
+    font-size: 16px;
+  }
+
+  .totalLabel {
+    font-size: 16px;
+  }
+
+  .totalValue {
+    font-size: 24px;
+  }
+
+  .totalBarTrack {
+    height: 12px;
+  }
+}

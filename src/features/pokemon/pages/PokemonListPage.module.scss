@@ -1,0 +1,194 @@
+@use "@/styles/mixins" as *;
+@use "@/styles/variables" as *;
+
+/* Main Layout + Header */
+.container {
+  width: 85vw;
+  margin-top: 26px;
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+
+  header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    font-size: 40px;
+    font-weight: 700;
+    color: #1f2a44;
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  h2 {
+    font-size: 16px;
+    color: #7b8191;
+    margin-top: 10px;
+  }
+}
+
+.redDot {
+  margin-bottom: 12px;
+  width: 10px;
+  height: 10px;
+  background: #ff4d4f;
+  border-radius: 50%;
+  margin-top: 6px;
+}
+
+.heroAccent {
+  margin-top: -10px;
+  width: 60px;
+  height: 4px;
+  border-radius: 4px;
+
+  background: linear-gradient(90deg, #ffd93d, #ffb703);
+}
+
+/* Search */
+.searchBar {
+  @include card-base;
+
+  width: 50vw;
+  height: 64px;
+  border-radius: 20px;
+  padding: 6px 8px 6px 20px;
+
+  display: flex;
+  align-items: center;
+
+  background: #ffffff;
+
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.05), 0 4px 10px rgba(0, 0, 0, 0.03);
+
+  transition: box-shadow 0.25s ease;
+
+  &:focus-within {
+    box-shadow: 0 16px 35px rgba(0, 0, 0, 0.07),
+      0 0 0 3px rgba(255, 77, 79, 0.15);
+  }
+
+  input[type="search"] {
+    flex: 1;
+    height: 100%;
+
+    border: none;
+    outline: none;
+    background: transparent;
+
+    font-size: 16px;
+    font-weight: 500;
+    color: #1f2a44;
+
+    &::placeholder {
+      color: #9aa1b2;
+      font-weight: 500;
+    }
+  }
+}
+
+.searchButton {
+  width: 52px;
+  height: 52px;
+
+  border-radius: 50%;
+  border: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: linear-gradient(135deg, #ff6b6b, #ff3d3d);
+
+  color: white;
+
+  box-shadow: 0 8px 20px rgba(255, 77, 79, 0.35);
+
+  cursor: pointer;
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    @include hover-focus-action;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.bottomLoader {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.loadTrigger {
+  height: 1px;
+}
+
+/* TABLET RESPONSIVENESS */
+
+@media (max-width: $bp-tablet) {
+  .container {
+    width: 92vw;
+    gap: 18px;
+
+    h1 {
+      font-size: 34px;
+    }
+  }
+
+  .searchBar {
+    width: 70vw;
+    height: 60px;
+  }
+}
+
+/* MOBILE RESPONSIVENESS */
+
+@media (max-width: $bp-mobile) {
+  .container {
+    width: 94vw;
+    margin-top: 20px;
+    gap: 16px;
+
+    h1 {
+      font-size: 28px;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 14px;
+      text-align: center;
+    }
+  }
+
+  .heroAccent {
+    width: 48px;
+  }
+
+  .searchBar {
+    width: 85%;
+    height: 56px;
+    padding: 6px 8px 6px 16px;
+    border-radius: 16px;
+  }
+
+  .searchBar input[type="search"] {
+    font-size: 15px;
+  }
+
+  .searchButton {
+    width: 46px;
+    height: 46px;
+  }
+}

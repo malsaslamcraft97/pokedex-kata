@@ -1,0 +1,21 @@
+@use "./reset";
+@use "./variables" as *;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: $font-family-base;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+
+  background-image: url("../assets/background-illustration.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}

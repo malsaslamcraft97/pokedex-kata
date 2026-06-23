@@ -1,0 +1,61 @@
+@use "@/styles/mixins" as *;
+
+.card {
+  @include card-base;
+
+  padding: 32px 24px 28px;
+  border-radius: 24px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.image {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: #e5e8ef;
+}
+
+.id {
+  width: 60px;
+  height: 14px;
+  border-radius: 6px;
+  background: #e5e8ef;
+}
+
+.name {
+  width: 120px;
+  height: 20px;
+  border-radius: 6px;
+  background: #e5e8ef;
+}
+
+.types {
+  display: flex;
+  gap: 8px;
+}
+
+.type {
+  width: 60px;
+  height: 24px;
+  border-radius: 8px;
+  background: #e5e8ef;
+}
+
+/* Smooth shimmer */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 1;
+  }
+}

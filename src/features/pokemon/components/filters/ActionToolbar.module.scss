@@ -1,0 +1,122 @@
+@use "@/styles/variables" as *;
+
+.toolbar {
+  display: grid;
+  grid-template-columns: 1.5fr 1.2fr 1.2fr 1.2fr 1fr;
+  gap: 24px;
+  margin-top: 28px;
+}
+
+/* ================= FILTER GROUP ================= */
+
+.filterGroup {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.filterLabel {
+  min-width: 22%;
+  font-size: 15px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+/* ================= BUTTONS ================= */
+
+.resetBtn {
+  padding: 10px 18px;
+  border-radius: 14px;
+
+  background: #fff;
+  border: 1px solid #e2e8f0;
+
+  font-weight: 600;
+  font-size: 14px;
+  color: #2d3748;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resetBtn:hover {
+  background: #e6e9ef;
+}
+
+.clearBtn {
+  padding: 10px 20px;
+  border-radius: 14px;
+
+  background: #ff4d4f;
+  border: none;
+
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearBtn:hover {
+  background: #e13e40;
+}
+
+/* ================= SAVED FILTERS ================= */
+.savedFiltersGroup {
+  display: flex;
+  // gap: 18px;
+  align-items: center;
+}
+
+.savedFilters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 18px;
+  background: rgba(116, 185, 255, 0.5);
+  font-size: 16px;
+  font-weight: 500;
+  color: #0984e3;
+}
+
+/* ================= TABLET ================= */
+@media (max-width: $bp-tablet) {
+  .toolbar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .actionBtns {
+    grid-column: 1 / -1; /* span full width */
+    justify-content: center;
+  }
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: $bp-mobile) {
+  .toolbar {
+    width: 85%;
+    grid-template-columns: 1fr;
+  }
+
+  .filterGroup {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .actionBtns {
+    justify-content: stretch;
+  }
+
+  .resetBtn,
+  .clearBtn {
+    width: 100%;
+  }
+}

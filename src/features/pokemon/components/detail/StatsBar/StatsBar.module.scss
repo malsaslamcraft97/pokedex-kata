@@ -1,0 +1,47 @@
+.row {
+  display: flex;
+  align-items: center;
+  padding-right: 16px;
+  gap: 18px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+}
+
+.label {
+  min-width: 95px;
+  padding: 8px 16px;
+  border-radius: 14px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+  text-align: center;
+}
+
+.middleValue {
+  width: 40px;
+  font-weight: 500;
+  font-size: 18px;
+  color: #1f2a44;
+}
+
+.barContainer {
+  flex: 1;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.value {
+  width: 40px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 18px;
+  color: #1f2a44;
+}
