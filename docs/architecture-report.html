@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Architecture Report — Pokédex Clean Code</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ground:     #0C1220;
+  --surface:    #131A2E;
+  --surface-2:  #1C2540;
+  --border:     #252F4A;
+  --text:       #D4DCF0;
+  --text-dim:   #8A96B0;
+  --text-muted: #4A5570;
+  --accent:     #6C63FF;
+  --good:       #3EC9A7;
+  --warn:       #F5A623;
+  --bad:        #FF6B35;
+  --layer-ui:     #4A90E2;
+  --layer-app:    #6C63FF;
+  --layer-domain: #3EC9A7;
+  --layer-infra:  #8B9BB4;
+}
+
+body {
+  background: var(--ground);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  padding-bottom: 96px;
+}
+
+.page { max-width: 1020px; margin: 0 auto; padding: 0 28px; }
+
+/* ── HEADER ─────────────────────────── */
+.header {
+  padding: 72px 0 52px;
+  border-bottom: 1px solid var(--border);
+}
+.header-eyebrow {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+}
+.header-title {
+  font-size: clamp(30px, 5.5vw, 54px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+.header-title em  { font-style: normal; color: var(--accent); }
+.header-title del { text-decoration: none; color: var(--text-muted); font-weight: 500; }
+.header-body {
+  font-size: 16px;
+  color: var(--text-dim);
+  max-width: 580px;
+  line-height: 1.75;
+}
+
+/* ── SCORE BAND ─────────────────────── */
+.score-band {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 44px 0 56px;
+}
+.score-item {
+  background: var(--surface);
+  padding: 24px 16px;
+  text-align: center;
+}
+.score-value {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  margin-bottom: 7px;
+}
+.score-label {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── SECTION TITLE ──────────────────── */
+.section-head { margin: 64px 0 28px; }
+.section-head h2 {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* ── NIK'S PRINCIPLES SUMMARY ───────── */
+.principles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 60px;
+}
+.principle-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+}
+.principle-num {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.principle-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.principle-body {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.principle-body code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11.5px;
+  background: var(--surface-2);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* ── LAYER DIAGRAMS ─────────────────── */
+.diagrams {
+  display: grid;
+  grid-template-columns: 1fr 56px 1fr;
+  gap: 0;
+  align-items: start;
+  margin-bottom: 64px;
+}
+.diagram-label {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+.layers-stack {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.layer-block {
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  cursor: default;
+  transition: background 0.15s;
+}
+.layer-block:last-child { border-bottom: none; }
+.layer-block:hover .layer-body { background: var(--surface-2); }
+.layer-block:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.layer-inner {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: stretch;
+}
+.layer-color-strip { width: 36px; flex-shrink: 0; }
+.layer-body {
+  background: var(--surface);
+  padding: 15px 16px 15px 14px;
+  transition: background 0.15s;
+}
+.layer-name {
+  font-weight: 700;
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+  margin-bottom: 5px;
+}
+.layer-files {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+.layer-files span { display: block; }
+
+/* Leaking dividers — animated concern leakage */
+@keyframes concern-leak {
+  0%   { background-position: 0% 50%;   opacity: 0.45; }
+  50%  { background-position: 100% 50%; opacity: 1; }
+  100% { background-position: 0% 50%;   opacity: 0.45; }
+}
+.leak-divider {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--layer-ui)     0%,
+    var(--layer-app)   33%,
+    var(--layer-domain) 66%,
+    var(--layer-infra) 100%
+  );
+  background-size: 300% 100%;
+  border: none;
+  display: block;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .leak-divider { animation: concern-leak 4s ease-in-out infinite; }
+}
+
+.diagram-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 40px;
+  gap: 4px;
+}
+.arrow-line  { width: 1px; height: 32px; background: var(--border); }
+.arrow-tip   { font-size: 18px; color: var(--text-muted); }
+.arrow-label {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  margin-top: 4px;
+}
+.diagram-caption {
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+/* ── DIMENSION TABLE ────────────────── */
+.dim-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 64px;
+}
+.dim-table th {
+  text-align: left;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 8px 16px 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.dim-table td {
+  padding: 14px 16px 14px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.dim-table tr:last-child td { border-bottom: none; }
+.dim-name {
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.dim-detail {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.dim-detail code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  background: var(--surface-2);
+  color: var(--accent);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.rating-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.rating-dot--good { background: var(--good); }
+.rating-dot--warn { background: var(--warn); }
+.rating-dot--bad  { background: var(--bad);  }
+.rating--good { color: var(--good); }
+.rating--warn { color: var(--warn); }
+.rating--bad  { color: var(--bad);  }
+.td-note { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+.td-note code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  background: var(--surface-2);
+  color: var(--accent);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* ── FINDING CARDS ──────────────────── */
+.deep-dive {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 64px;
+}
+.finding-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.finding-card--good { border-color: rgba(62, 201, 167, 0.2); }
+.finding-card--gap  { border-color: rgba(255, 107, 53, 0.2); }
+.finding-head {
+  padding: 14px 18px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.finding-card--good .finding-head { background: rgba(62, 201, 167, 0.06); color: var(--good); }
+.finding-card--gap  .finding-head { background: rgba(255, 107, 53, 0.06); color: var(--bad); }
+.finding-body { padding: 16px 18px; background: var(--surface); }
+.finding-item {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.55;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.finding-item:last-child { border-bottom: none; padding-bottom: 0; }
+.finding-item code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11.5px;
+  background: var(--surface-2);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.finding-icon { flex-shrink: 0; margin-top: 2px; color: var(--text-muted); }
+
+/* ── CODE SPOTLIGHT ─────────────────── */
+.spotlight {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.spotlight-head {
+  padding: 10px 16px;
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.spotlight-file {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  flex: 1;
+}
+.spotlight-tag {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+.spotlight-tag--problem { background: rgba(255, 107, 53, 0.15); color: var(--bad); }
+.spotlight-tag--correct { background: rgba(62, 201, 167, 0.15); color: var(--good); }
+.spotlight-body {
+  padding: 16px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--text-dim);
+  overflow-x: auto;
+}
+.spotlight-body .comment { color: var(--text-muted); }
+.spotlight-body .highlight { color: var(--bad); font-weight: 600; }
+.spotlight-body .highlight-good { color: var(--good); font-weight: 600; }
+.spotlight-body .kw { color: var(--layer-app); }
+.spotlight-body .fn { color: var(--accent); }
+.spotlight-note {
+  padding: 10px 16px;
+  background: rgba(255, 107, 53, 0.05);
+  border-top: 1px solid rgba(255, 107, 53, 0.1);
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+.spotlight-note code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  background: var(--surface-2);
+  color: var(--accent);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* ── TRANSFORMATION ACTIONS ─────────── */
+.transform-action {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.action-head {
+  padding: 11px 16px;
+  background: var(--surface-2);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.action-pill {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+.action-pill--create { background: rgba(62, 201, 167, 0.15); color: var(--good); }
+.action-pill--split  { background: rgba(245, 166, 35, 0.15); color: var(--warn); }
+.action-pill--update { background: rgba(108, 99, 255, 0.15); color: var(--accent); }
+.action-pill--remove { background: rgba(255, 107, 53, 0.15); color: var(--bad); }
+.action-file {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.action-body {
+  padding: 14px 16px;
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+.action-body code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11.5px;
+  background: var(--surface-2);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.action-body ul { padding-left: 18px; margin-top: 8px; }
+.action-body li { margin-bottom: 5px; }
+
+/* ── FILE TREE ──────────────────────── */
+.filetree-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 32px 0 64px;
+}
+.filetree-col-head {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.file-tree {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  line-height: 2.1;
+}
+.ft-dir   { color: var(--text-dim); }
+.ft-file  { color: var(--text-muted); padding-left: 18px; display: block; }
+.ft-new   { color: var(--good); padding-left: 18px; display: block; }
+.ft-new::before { content: '+ '; opacity: 0.65; }
+.ft-slim  { color: var(--warn); padding-left: 18px; display: block; }
+.ft-slim::after { content: '  ↓ slimmed'; opacity: 0.55; }
+.ft-del   { color: var(--bad); padding-left: 18px; display: block; text-decoration: line-through; opacity: 0.45; }
+.ft-unchanged { padding-left: 18px; display: block; color: var(--text-muted); opacity: 0.55; }
+
+/* ── VERDICT FOOTER ─────────────────── */
+.verdict-footer {
+  margin-top: 64px;
+  padding: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+}
+.verdict-footer p {
+  font-size: 15.5px;
+  color: var(--text-dim);
+  line-height: 1.75;
+}
+.verdict-footer p + p { margin-top: 14px; }
+.verdict-footer strong { color: var(--text); font-weight: 600; }
+.verdict-footer code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  background: var(--surface-2);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* ── RESPONSIVE ─────────────────────── */
+@media (max-width: 700px) {
+  .diagrams         { grid-template-columns: 1fr; }
+  .diagram-arrow    { display: none; }
+  .score-band       { grid-template-columns: repeat(2, 1fr); }
+  .deep-dive        { grid-template-columns: 1fr; }
+  .filetree-grid    { grid-template-columns: 1fr; }
+  .principles-grid  { grid-template-columns: 1fr; }
+  .dim-table th:nth-child(3),
+  .dim-table td:nth-child(3) { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── HEADER ─────────────────────── -->
+  <header class="header">
+    <p class="header-eyebrow">Nik Sumeiko's Domain/Application Model &nbsp;vs&nbsp; Pokédex Clean Code</p>
+    <h1 class="header-title">
+      Your feature structure<br>
+      is <em>first-class.</em><br>
+      Your domain layer <del>doesn't exist.</del>
+    </h1>
+    <p class="header-body">
+      The repo already gets feature encapsulation, RTK Query, and component composition right —
+      solidly beyond most React codebases at this scale.
+      The gap is a single missing layer and one hook doing four jobs at once.
+      This report maps exactly what to extract and why.
+    </p>
+  </header>
+
+  <!-- ── SCORE BAND ─────────────────── -->
+  <div class="score-band" role="list">
+    <div class="score-item" role="listitem">
+      <div class="score-value" style="color: var(--good);">7.5<span style="font-size:18px;font-weight:400;">/10</span></div>
+      <div class="score-label">Overall score</div>
+    </div>
+    <div class="score-item" role="listitem">
+      <div class="score-value" style="color: var(--bad);">2<span style="font-size:18px;font-weight:400;">/10</span></div>
+      <div class="score-label">Domain separation</div>
+    </div>
+    <div class="score-item" role="listitem">
+      <div class="score-value" style="color: var(--warn);">172</div>
+      <div class="score-label">Line hook, 4 concerns</div>
+    </div>
+    <div class="score-item" role="listitem">
+      <div class="score-value" style="color: var(--good);">3</div>
+      <div class="score-label">New domain files needed</div>
+    </div>
+  </div>
+
+  <!-- ── NIK'S MODEL SUMMARY ──────────── -->
+  <div class="section-head">
+    <h2>What Nik Sumeiko's model prescribes</h2>
+  </div>
+
+  <div class="principles-grid">
+    <div class="principle-card">
+      <div class="principle-num">Principle 01</div>
+      <div class="principle-title">Separate domain from application logic</div>
+      <div class="principle-body">
+        <strong style="color:var(--text);">Domain logic</strong> — pure functions, no React, no side effects.
+        Filtering a Pokémon list by type is a business rule; it should work in any environment.
+        <strong style="color:var(--text);">Application logic</strong> — React hooks that wire domain functions
+        into the component lifecycle. It knows about <code>useState</code> and <code>useEffect</code>,
+        but not about HTTP.
+      </div>
+    </div>
+    <div class="principle-card">
+      <div class="principle-num">Principle 02</div>
+      <div class="principle-title">Dependencies point inward</div>
+      <div class="principle-body">
+        UI imports from the application layer. The application layer imports from domain.
+        Domain imports nothing from React or the network. This is Dependency Inversion:
+        outer layers know about inner ones, never the reverse.
+        Breaking this rule is what makes refactoring expensive.
+      </div>
+    </div>
+    <div class="principle-card">
+      <div class="principle-num">Principle 03</div>
+      <div class="principle-title">Outside-in TDD</div>
+      <div class="principle-body">
+        Write an acceptance test (component level) first. Watch it fail.
+        Then drive the domain functions into existence with plain unit tests.
+        Pure domain functions can be tested with a single <code>expect(fn(input)).toBe(output)</code>
+        — no RTL, no MSW, no store.
+      </div>
+    </div>
+    <div class="principle-card">
+      <div class="principle-num">Principle 04</div>
+      <div class="principle-title">Black-box testing of domain</div>
+      <div class="principle-body">
+        Test domain functions through their public contract, not their implementation.
+        <code>filterByType(list, ['fire'])</code> should return only fire-type Pokémon —
+        the test doesn't care how the function is written, only what it returns.
+        This makes internal refactoring safe.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── LAYER DIAGRAMS ─────────────── -->
+  <div class="section-head">
+    <h2>Architectural layers — current vs proposed</h2>
+  </div>
+
+  <div class="diagrams">
+
+    <!-- CURRENT -->
+    <div>
+      <p class="diagram-label">Current architecture</p>
+      <div class="layers-stack" role="list" aria-label="Current architecture layers">
+
+        <div class="layer-block" role="listitem" tabindex="0">
+          <div class="layer-inner">
+            <div class="layer-color-strip" style="background: var(--layer-ui); opacity: 0.75;"></div>
+            <div class="layer-body">
+              <div class="layer-name" style="color: var(--layer-ui);">UI Layer ✓</div>
+              <div class="layer-files">
+                <span>PokemonListPage, PokemonDetailPage</span>
+                <span>PokemonCard, PokemonHero, PokemonTabs</span>
+                <span>ActionToolbar, Select, EmptyState</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="leak-divider" aria-hidden="true" />
+
+        <div class="layer-block" role="listitem" tabindex="0">
+          <div class="layer-inner">
+            <div class="layer-color-strip" style="background: linear-gradient(180deg, var(--layer-app) 0%, var(--layer-domain) 50%, var(--layer-infra) 100%); opacity: 0.75;"></div>
+            <div class="layer-body">
+              <div class="layer-name" style="color: var(--warn);">Mixed Logic ⚠</div>
+              <div class="layer-files">
+                <span>usePokemonListPageData.ts (172 lines)</span>
+                <span style="color:var(--bad);">— filterBySearch / filterByType    ← domain</span>
+                <span style="color:var(--bad);">— sortById / sortByName / height   ← domain</span>
+                <span style="color:var(--text-muted);">— useEffect, useRef, useMemo      ← app</span>
+                <span style="color:var(--bad);">— URL ↔ Redux sync                ← infra</span>
+                <span style="color:var(--bad);">— IntersectionObserver setup      ← app (wrong hook)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="leak-divider" aria-hidden="true" />
+
+        <div class="layer-block" role="listitem" tabindex="0">
+          <div class="layer-inner">
+            <div class="layer-color-strip" style="background: var(--layer-app); opacity: 0.75;"></div>
+            <div class="layer-body">
+              <div class="layer-name" style="color: var(--layer-app);">State ✓</div>
+              <div class="layer-files">
+                <span>pokemonSlice.ts, uiSlice.ts</span>
+                <span>app/store.ts, app/hooks.ts</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="leak-divider" aria-hidden="true" />
+
+        <div class="layer-block" role="listitem" tabindex="0">
+          <div class="layer-inner">
+            <div class="layer-color-strip" style="background: linear-gradient(180deg, var(--layer-domain) 0%, var(--layer-infra) 100%); opacity: 0.75;"></div>
+            <div class="layer-body">
+              <div class="layer-name" style="color: var(--warn);">API + Transform ⚠</div>
+              <div class="layer-files">
+                <span>pokemonApi.ts</span>
+                <span style="color:var(--text-muted);">— RTK Query endpoints           ← correct ✓</span>
+                <span style="color:var(--bad);">— capitalize, padStart, replace  ← domain concern</span>
+                <span style="color:var(--bad);">— enrichPokemon logic inline      ← domain concern</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <p class="diagram-caption">
+        The animated dividers encode concern leakage — colours from one layer bleed into the next because the code does too.
+      </p>
+    </div>
+
+    <!-- ARROW -->
+    <div class="diagram-arrow" aria-hidden="true">
+      <div class="arrow-line"></div>
+      <div class="arrow-tip">→</div>
+      <div class="arrow-label">transform</div>
+    </div>
+
+    <!-- NIK'S ARCHITECTURE -->
+    <div>
+      <p class="diagram-label">After applying Nik's model</p>
+      <div class="layers-stack" role="list" aria-label="Proposed architecture layers">
+
+        <div class="layer-block" role="listitem" tabindex="0">
+          <div class="layer-inner">
+            <div class="layer-color-strip" style="background: var(--layer-ui);"></div>
+            <div class="layer-body">
+              <div class="layer-name" style="color: var(--layer-ui);">UI Layer</div>
+              <div class="layer-files">
+                <span>Same components — render only</span>
+                <span>No business logic, no direct API imports</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="layer-block" role="listitem" tabindex="0">
+          <div class="layer-inner">
+            <div class="layer-color-strip" style="background: var(--layer-app);"></div>
+            <div class="layer-body">
+              <div class="layer-name" style="color: var(--layer-app);">Application Layer</div>
+              <div class="layer-files">
+                <span>usePokemonListData.ts  ← slimmed</span>
+                <span>useInfiniteScroll.ts   ← extracted</span>
+                <span>useUrlFilterSync.ts    ← extracted</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="layer-block" role="listitem" tabindex="0">
+          <div class="layer-inner">
+            <div class="layer-color-strip" style="background: var(--layer-domain);"></div>
+            <div class="layer-body">
+              <div class="layer-name" style="color: var(--layer-domain);">Domain Layer ✦ new</div>
+              <div class="layer-files">
+                <span>domain/pokemonFilters.ts</span>
+                <span>domain/pokemonSorters.ts</span>
+                <span>domain/pokemonTransformers.ts</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="layer-block" role="listitem" tabindex="0">
+          <div class="layer-inner">
+            <div class="layer-color-strip" style="background: var(--layer-infra);"></div>
+            <div class="layer-body">
+              <div class="layer-name" style="color: var(--layer-infra);">Infrastructure Layer</div>
+              <div class="layer-files">
+                <span>pokemonApi.ts — fetch only</span>
+                <span>Redux store, URL params</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <p class="diagram-caption">
+        Static borders — each layer has one job. Dependencies only flow inward: UI → Application → Domain ← nothing.
+      </p>
+    </div>
+
+  </div><!-- /diagrams -->
+
+  <!-- ── DIMENSION TABLE ────────────── -->
+  <div class="section-head">
+    <h2>Dimension-by-dimension comparison</h2>
+  </div>
+
+  <table class="dim-table">
+    <thead>
+      <tr>
+        <th style="width:32%;">Dimension</th>
+        <th style="width:16%;">Current</th>
+        <th style="width:16%;">After</th>
+        <th>Analysis</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="dim-name">Feature encapsulation</div>
+          <div class="dim-detail">All Pokémon logic under <code>features/pokemon/</code></div>
+        </td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>Excellent</span></td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>Unchanged</span></td>
+        <td class="td-note">Already follows — and actually exceeds — Nik's model. He doesn't prescribe feature folders; you added that. No change needed.</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="dim-name">Domain layer existence</div>
+          <div class="dim-detail">Pure functions with no React or side effects</div>
+        </td>
+        <td><span class="rating rating--bad"><span class="rating-dot rating-dot--bad"></span>Missing</span></td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>Explicit</span></td>
+        <td class="td-note">Filtering, sorting, and enrichment logic exists but is trapped inside React hooks and RTK Query callbacks. Extract to <code>domain/</code> as pure functions.</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="dim-name">Hook single responsibility</div>
+          <div class="dim-detail"><code>usePokemonListPageData</code> — 172 lines</div>
+        </td>
+        <td><span class="rating rating--bad"><span class="rating-dot rating-dot--bad"></span>4 concerns</span></td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>3 hooks</span></td>
+        <td class="td-note">One hook manages data fetching, client-side filtering/sorting, infinite scroll observation, and URL ↔ Redux sync. Each of these is independently testable once separated.</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="dim-name">Business logic testability</div>
+          <div class="dim-detail">Can filter/sort logic be tested without mounting a React component?</div>
+        </td>
+        <td><span class="rating rating--warn"><span class="rating-dot rating-dot--warn"></span>Integration only</span></td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>Plain unit tests</span></td>
+        <td class="td-note">Currently you need RTL + a Redux store + MSW to test that <code>filterByType</code> works. As a pure function: <code>expect(filterByType(list, ['fire'])).toHaveLength(1)</code> — no setup at all.</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="dim-name">Data transformation placement</div>
+          <div class="dim-detail">Where does <code>capitalize</code>, <code>padStart</code>, type enrichment live?</div>
+        </td>
+        <td><span class="rating rating--bad"><span class="rating-dot rating-dot--bad"></span>Wrong layer</span></td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>Domain layer</span></td>
+        <td class="td-note"><code>pokemonApi.ts</code> lines 53–71 inline-transform raw API data inside RTK Query's <code>queryFn</code>. These transformations are domain rules, not infrastructure — they belong in <code>pokemonTransformers.ts</code>.</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="dim-name">Dependency direction</div>
+          <div class="dim-detail">Do UI components import from the API/infrastructure layer?</div>
+        </td>
+        <td><span class="rating rating--warn"><span class="rating-dot rating-dot--warn"></span>Implicit coupling</span></td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>Enforced inward</span></td>
+        <td class="td-note">Components import <code>EnrichedPokemon</code> directly from <code>api/pokemonApi</code>. With a domain layer, that type lives in <code>domain/</code> and UI imports from there — infrastructure can change without touching UI.</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="dim-name">Component purity</div>
+          <div class="dim-detail">Do page/list/detail components only render?</div>
+        </td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>Clean</span></td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>Unchanged</span></td>
+        <td class="td-note"><code>PokemonCard</code>, <code>PokemonHero</code>, <code>PokemonTabs</code> — already render-only with no business logic inside. Zero work here.</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="dim-name">TypeScript coverage</div>
+          <div class="dim-detail">Are all layer boundaries fully typed?</div>
+        </td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>Strong</span></td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>Stronger</span></td>
+        <td class="td-note">Domain functions will carry explicit input/output contracts, making the boundary between layers verifiable by the compiler, not just by convention.</td>
+      </tr>
+      <tr>
+        <td>
+          <div class="dim-name">Dead code</div>
+          <div class="dim-detail">Are all Redux actions actually used?</div>
+        </td>
+        <td><span class="rating rating--warn"><span class="rating-dot rating-dot--warn"></span>pokemonSlice</span></td>
+        <td><span class="rating rating--good"><span class="rating-dot rating-dot--good"></span>Remove it</span></td>
+        <td class="td-note"><code>pokemonSlice</code> defines <code>setLoading</code>, <code>setPokemon</code>, <code>setError</code> — none of which are called anywhere. RTK Query already owns loading/error state. The slice should be deleted.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ── CODE SPOTLIGHTS ────────────── -->
+  <div class="section-head">
+    <h2>Where the violations live in the code</h2>
+  </div>
+
+  <div class="spotlight">
+    <div class="spotlight-head">
+      <span class="spotlight-file">hooks/usePokemonListPageData.ts — lines 62–115</span>
+      <span class="spotlight-tag spotlight-tag--problem">Domain logic in a React hook</span>
+    </div>
+    <div class="spotlight-body"><pre>
+<span class="comment">// This entire block is domain logic — no React needed</span>
+<span class="kw">const</span> <span class="fn">processedList</span> = <span class="fn">useMemo</span>(() =&gt; {
+  <span class="kw">let</span> list = [...data];
+
+  <span class="highlight">// filterBySearch — pure business rule</span>
+  <span class="kw">if</span> (searchText)
+    list = list.<span class="fn">filter</span>(p =&gt; p.name.toLowerCase().<span class="fn">includes</span>(searchText.toLowerCase()));
+
+  <span class="highlight">// filterByType — pure business rule</span>
+  <span class="kw">if</span> (filters.type) {
+    <span class="kw">const</span> selectedTypes = filters.type.<span class="fn">split</span>(",");
+    list = list.<span class="fn">filter</span>(p =&gt; p.types.<span class="fn">some</span>(t =&gt; selectedTypes.<span class="fn">includes</span>(t.toLowerCase())));
+  }
+
+  <span class="highlight">// sortBy* — pure business rule</span>
+  <span class="kw">switch</span> (filters.sortBy) {
+    <span class="kw">case</span> "name_asc": list.<span class="fn">sort</span>((a, b) =&gt; a.name.<span class="fn">localeCompare</span>(b.name)); <span class="kw">break</span>;
+    <span class="comment">// …3 more cases</span>
+  }
+}, [data, searchText, filters]);
+</pre></div>
+    <div class="spotlight-note">
+      This logic has no dependency on React whatsoever. Wrapping it in <code>useMemo</code> is a performance optimisation, not an architectural requirement.
+      Extract to <code>domain/pokemonFilters.ts</code> and <code>domain/pokemonSorters.ts</code>, then call them from the hook.
+    </div>
+  </div>
+
+  <div class="spotlight">
+    <div class="spotlight-head">
+      <span class="spotlight-file">api/pokemonApi.ts — lines 53–71</span>
+      <span class="spotlight-tag spotlight-tag--problem">Domain transformation in infrastructure</span>
+    </div>
+    <div class="spotlight-body"><pre>
+<span class="comment">// Inside RTK Query's queryFn — infrastructure layer</span>
+<span class="kw">return</span> {
+  id: detail.id,
+  <span class="highlight">formattedId: `N°${String(detail.id).padStart(3, "0")}`,</span>   <span class="comment">// ← domain rule</span>
+  <span class="highlight">name: detail.name.charAt(0).toUpperCase() + detail.name.slice(1),</span>  <span class="comment">// ← domain rule</span>
+  <span class="highlight">types: detail.types.map(t =&gt;</span>
+    <span class="highlight">  t.type.name.charAt(0).toUpperCase() + t.type.name.slice(1)</span>  <span class="comment">// ← domain rule</span>
+  <span class="highlight">),</span>
+  image: detail.sprites.other["home"]?.front_default
+    ?? detail.sprites.other["official-artwork"].front_default,
+  ability: detail.abilities?.[0]?.ability?.name
+    .<span class="fn">replace</span>("-", " ").<span class="fn">replace</span>(/\b\w/g, c =&gt; c.toUpperCase()),
+  height: detail.height,
+};
+</pre></div>
+    <div class="spotlight-note">
+      "Format an ID as <code>N°001</code>" is a business rule about how this app presents Pokémon — it is not a network concern.
+      Move this block to <code>domain/pokemonTransformers.ts</code> as <code>enrichPokemon(raw)</code>.
+      The RTK endpoint becomes a single line: <code>return { data: results.map(enrichPokemon) }</code>.
+    </div>
+  </div>
+
+  <!-- ── WHAT'S SOLID vs GAPS ──────── -->
+  <div class="section-head" style="margin-top: 56px;">
+    <h2>Full inventory — what's solid and what needs work</h2>
+  </div>
+
+  <div class="deep-dive">
+    <div class="finding-card finding-card--good">
+      <div class="finding-head">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><circle cx="6" cy="6" r="5.5" stroke="#3EC9A7"/><path d="M3.5 6l2 2 3-3" stroke="#3EC9A7" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Already aligned with Nik's model
+      </div>
+      <div class="finding-body">
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span>Feature-first structure under <code>features/pokemon/</code> — Nik's model agrees. You added this on top of layer separation, which is architecturally ahead.</span>
+        </div>
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span>Component hierarchy is clean — <code>PokemonCard</code>, <code>PokemonHero</code>, <code>PokemonTabs</code> contain zero business logic and only render.</span>
+        </div>
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span>Redux slices <code>pokemonSlice</code> and <code>uiSlice</code> have single responsibilities. <code>uiSlice</code> owns all filter/search/pagination state cleanly.</span>
+        </div>
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span>RTK Query is the correct tool for the infrastructure layer — caching, pagination merging, and serialisation strategy are well-implemented.</span>
+        </div>
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span>TypeScript types well-defined at layer boundaries — <code>PokemonDetails</code>, <code>PokemonSpecies</code>, <code>EnrichedPokemon</code> are explicit contracts.</span>
+        </div>
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span>MSW + React Testing Library is compatible with outside-in TDD. The integration test infrastructure is already in place.</span>
+        </div>
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span>IntersectionObserver is abstracted correctly behind <code>loadMoreRef</code> — it's already isolated from the filtering logic conceptually.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="finding-card finding-card--gap">
+      <div class="finding-head">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><circle cx="6" cy="6" r="5.5" stroke="#FF6B35"/><path d="M6 3.5v3.5M6 8.5v.5" stroke="#FF6B35" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Gaps to close
+      </div>
+      <div class="finding-body">
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span>No <code>domain/</code> folder exists — filtering, sorting, and data transformation have no pure home in the codebase.</span>
+        </div>
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span><code>usePokemonListPageData</code> carries 4 concerns: data fetching, client filtering/sorting, infinite scroll, and URL sync — impossible to test any one in isolation.</span>
+        </div>
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span><code>pokemonApi.ts</code> lines 53–71 inline-enrich raw API data with capitalization and ID formatting — domain logic trapped inside RTK Query's <code>queryFn</code>.</span>
+        </div>
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span>UI components import <code>EnrichedPokemon</code> directly from <code>api/pokemonApi</code> — the UI layer has a direct dependency on the infrastructure layer.</span>
+        </div>
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span><code>pokemonSlice</code> defines <code>setLoading</code>, <code>setPokemon</code>, <code>setError</code> — none called anywhere. RTK Query already manages this state. Dead code.</span>
+        </div>
+        <div class="finding-item">
+          <span class="finding-icon">→</span>
+          <span>Filter/sort functions can only be tested by mounting a full page with a Redux store and MSW server. A pure function test would take 5ms, not 500ms.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TRANSFORMATION PLAN ─────────── -->
+  <div class="section-head">
+    <h2>Transformation plan — specific files and actions</h2>
+  </div>
+
+  <div class="transform-action">
+    <div class="action-head">
+      <span class="action-pill action-pill--create">Create</span>
+      <span class="action-file">src/features/pokemon/domain/pokemonFilters.ts</span>
+    </div>
+    <div class="action-body">
+      Extract the filter logic from <code>usePokemonListPageData.ts</code> (lines 67–84) into pure functions.
+      <ul>
+        <li><code>filterBySearch(list: EnrichedPokemon[], search: string): EnrichedPokemon[]</code></li>
+        <li><code>filterByType(list: EnrichedPokemon[], types: string[]): EnrichedPokemon[]</code></li>
+        <li><code>filterByAbility(list: EnrichedPokemon[], ability: string): EnrichedPokemon[]</code></li>
+      </ul>
+      Zero imports from React or Redux. Testable as: <code>expect(filterByType(mockList, ['fire'])).toHaveLength(1)</code>.
+    </div>
+  </div>
+
+  <div class="transform-action">
+    <div class="action-head">
+      <span class="action-pill action-pill--create">Create</span>
+      <span class="action-file">src/features/pokemon/domain/pokemonSorters.ts</span>
+    </div>
+    <div class="action-body">
+      Extract the sort switch-case from <code>usePokemonListPageData.ts</code> (lines 88–113).
+      <ul>
+        <li><code>sortByHeight(list, direction: 'asc' | 'desc'): EnrichedPokemon[]</code></li>
+        <li><code>sortById(list, direction: 'asc' | 'desc'): EnrichedPokemon[]</code></li>
+        <li><code>sortByName(list, direction: 'asc' | 'desc'): EnrichedPokemon[]</code></li>
+        <li><code>applySort(list, sortBy: string): EnrichedPokemon[]</code> — orchestrates the above based on the <code>sortBy</code> string</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="transform-action">
+    <div class="action-head">
+      <span class="action-pill action-pill--create">Create</span>
+      <span class="action-file">src/features/pokemon/domain/pokemonTransformers.ts</span>
+    </div>
+    <div class="action-body">
+      Move the inline enrichment block from <code>pokemonApi.ts</code> (lines 53–71) into a pure function.
+      <ul>
+        <li><code>enrichPokemon(raw: RawPokemonDetail): EnrichedPokemon</code> — formats ID, capitalises name and types, selects image, extracts ability</li>
+      </ul>
+      <code>pokemonApi.ts</code> then calls <code>results.map(enrichPokemon)</code> — one line instead of twenty. The type <code>EnrichedPokemon</code> can be moved here too, breaking the UI's direct import from <code>api/pokemonApi</code>.
+    </div>
+  </div>
+
+  <div class="transform-action">
+    <div class="action-head">
+      <span class="action-pill action-pill--split">Split</span>
+      <span class="action-file">hooks/usePokemonListPageData.ts → 3 focused hooks</span>
+    </div>
+    <div class="action-body">
+      The 172-line hook becomes three independently testable hooks:
+      <ul>
+        <li><code>usePokemonListData.ts</code> — RTK Query + calls domain filter/sort functions, returns <code>processedList</code>. ~40 lines.</li>
+        <li><code>useInfiniteScroll.ts</code> — only the IntersectionObserver setup. Takes an <code>onLoadMore</code> callback, returns <code>loadMoreRef</code>. ~30 lines.</li>
+        <li><code>useUrlFilterSync.ts</code> — only the URL ↔ Redux bidirectional sync. Runs on mount and filter change. ~35 lines.</li>
+      </ul>
+      <code>PokemonListPage</code> composes all three. Each hook now has a single, mockable responsibility.
+    </div>
+  </div>
+
+  <div class="transform-action">
+    <div class="action-head">
+      <span class="action-pill action-pill--update">Update</span>
+      <span class="action-file">api/pokemonApi.ts</span>
+    </div>
+    <div class="action-body">
+      Replace the inline enrichment block (lines 44–73) with a call to <code>enrichPokemon</code> from the domain layer.
+      The endpoint's only job becomes: fetch the list, fetch each detail in parallel, call <code>enrichPokemon</code>, return.
+      All formatting rules live in <code>domain/pokemonTransformers.ts</code> — tested separately, independently of the network.
+    </div>
+  </div>
+
+  <div class="transform-action">
+    <div class="action-head">
+      <span class="action-pill action-pill--remove">Remove</span>
+      <span class="action-file">store/pokemonSlice.ts</span>
+    </div>
+    <div class="action-body">
+      <code>pokemonSlice</code> defines three actions (<code>setLoading</code>, <code>setPokemon</code>, <code>setError</code>) that are never dispatched anywhere in the codebase.
+      RTK Query already manages loading and error state via its own cache. Delete the slice and remove it from <code>app/store.ts</code>.
+      This removes dead code and makes the state surface smaller.
+    </div>
+  </div>
+
+  <!-- ── FILE TREE BEFORE / AFTER ────── -->
+  <div class="filetree-grid">
+    <div>
+      <div class="filetree-col-head">Before — current state</div>
+      <div class="file-tree">
+        <span class="ft-dir">features/pokemon/</span>
+        <span class="ft-file">api/pokemonApi.ts  <span style="color:var(--bad);">(fetch + transform mixed)</span></span>
+        <span class="ft-dir">hooks/</span>
+        <span class="ft-file">usePokemonListPageData.ts <span style="color:var(--bad);">(4 concerns)</span></span>
+        <span class="ft-dir">store/</span>
+        <span class="ft-file">pokemonSlice.ts  <span style="color:var(--bad);">(unused)</span></span>
+        <span class="ft-file">uiSlice.ts</span>
+        <span class="ft-unchanged">components/  pages/  types/  utils/</span>
+      </div>
+    </div>
+    <div>
+      <div class="filetree-col-head">After — Nik's model applied</div>
+      <div class="file-tree">
+        <span class="ft-dir">features/pokemon/</span>
+        <span class="ft-new">domain/pokemonFilters.ts</span>
+        <span class="ft-new">domain/pokemonSorters.ts</span>
+        <span class="ft-new">domain/pokemonTransformers.ts</span>
+        <span class="ft-slim">api/pokemonApi.ts</span>
+        <span class="ft-dir">hooks/</span>
+        <span class="ft-new">usePokemonListData.ts</span>
+        <span class="ft-new">useInfiniteScroll.ts</span>
+        <span class="ft-new">useUrlFilterSync.ts</span>
+        <span class="ft-del">store/pokemonSlice.ts</span>
+        <span class="ft-file">store/uiSlice.ts</span>
+        <span class="ft-unchanged">components/  pages/  types/  utils/</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VERDICT ────────────────────── -->
+  <div class="verdict-footer">
+    <p>
+      <strong>Is the current architecture better than Nik's model in any way?</strong>
+      Yes — one specific thing. The feature-based folder structure (<code>features/pokemon/</code>) is
+      more pragmatic than a global layered structure for a single-feature app.
+      Nik's model doesn't prescribe feature folders at all; you combined feature encapsulation
+      with concern layering, which is architecturally ahead of pure global layering.
+      That structure stays intact — the transformation adds a <code>domain/</code> subfolder inside it.
+    </p>
+    <p>
+      <strong>What the transformation unlocks:</strong>
+      Once the domain layer exists, the filtering and sorting logic can be tested as plain
+      functions in milliseconds — no RTL, no Redux store, no MSW server.
+      The hooks become thin wires connecting domain logic to React's lifecycle.
+      The API becomes a fetch contract with no formatting opinions.
+      The components stay exactly as they are.
+      Three new files, one split hook, one deleted slice.
+      Smallest surface area change for the largest architectural clarity gain.
+    </p>
+  </div>
+
+</div><!-- /page -->
+</body>
+</html>
