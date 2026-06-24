@@ -15,8 +15,9 @@ export function filterByType(
   selectedTypes: string[]
 ): EnrichedPokemon[] {
   if (selectedTypes.length === 0) return list;
+  const lowerTypes = selectedTypes.map((t) => t.toLowerCase());
   return list.filter((p) =>
-    p.types.some((type) => selectedTypes.includes(type.toLowerCase()))
+    p.types.some((type) => lowerTypes.includes(type.toLowerCase()))
   );
 }
 
