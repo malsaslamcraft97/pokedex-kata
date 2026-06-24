@@ -8,12 +8,6 @@ describe("store configuration", () => {
     expect(state[pokemonApi.reducerPath]).toBeDefined();
   });
 
-  it("should include pokemon slice reducer", () => {
-    const state = store.getState();
-
-    expect(state.pokemon).toBeDefined();
-  });
-
   it("should include pokemon UI reducer", () => {
     const state = store.getState();
 

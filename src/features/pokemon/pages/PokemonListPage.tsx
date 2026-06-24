@@ -8,9 +8,12 @@ import {
 } from "../components";
 
 import { setSearchText } from "../store/uiSlice";
-import usePokemonListPageData from "../hooks/usePokemonListPageData";
+import usePokemonListData from "../hooks/usePokemonListData";
+import useUrlFilterSync from "../hooks/useUrlFilterSync";
 
 export default function PokemonListPage() {
+  useUrlFilterSync();
+
   const {
     dispatch,
     searchText,
@@ -20,7 +23,7 @@ export default function PokemonListPage() {
     isFetching,
     data,
     loadMoreRef,
-  } = usePokemonListPageData();
+  } = usePokemonListData();
 
   const showInitialLoader = isLoading && !data;
 

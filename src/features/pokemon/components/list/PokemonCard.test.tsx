@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import PokemonCard from "./PokemonCard";
-import { EnrichedPokemon } from "../../api/pokemonApi";
+import { EnrichedPokemon } from "../../domain/pokemonTransformers";
 
 const mockPokemon: EnrichedPokemon = {
   id: 1,

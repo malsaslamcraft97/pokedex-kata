@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import styles from "./PokemonCard.module.scss";
-import { EnrichedPokemon } from "../../api/pokemonApi";
+import { EnrichedPokemon } from "../../domain/pokemonTransformers";
 import { Ruler, Sparkles } from "lucide-react";
 
 type Props = EnrichedPokemon;

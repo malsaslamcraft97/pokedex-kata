@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
-import pokemonReducer from "../features/pokemon/store/pokemonSlice";
 import pokemonUIReducer from "../features/pokemon/store/uiSlice";
 import { pokemonApi } from "../features/pokemon/api/pokemonApi";
 
@@ -24,7 +23,6 @@ const persistedPokemonUIReducer = persistReducer(
 
 export const store = configureStore({
   reducer: {
-    pokemon: pokemonReducer,
     [pokemonApi.reducerPath]: pokemonApi.reducer,
     pokemonUI: persistedPokemonUIReducer,
   },

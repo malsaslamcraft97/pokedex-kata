@@ -4,7 +4,6 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { setupServer } from "msw/node";
 import { http } from "msw";
 import { configureStore } from "@reduxjs/toolkit";
-import pokemonReducer from "../store/pokemonSlice";
 import { pokemonApi } from "../api/pokemonApi";
 import PokemonDetailPage from "./PokemonDetailPage";
 import userEvent from "@testing-library/user-event";
@@ -65,7 +64,6 @@ afterAll(() => server.close());
 function createTestStore() {
   return configureStore({
     reducer: {
-      pokemon: pokemonReducer,
       [pokemonApi.reducerPath]: pokemonApi.reducer,
     },
     middleware: (gDM) => gDM().concat(pokemonApi.middleware),

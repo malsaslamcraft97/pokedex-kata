@@ -1,4 +1,4 @@
-import { EnrichedPokemon } from "../../api/pokemonApi";
+import { EnrichedPokemon } from "../../domain/pokemonTransformers";
 
 import PokemonCard from "./PokemonCard";
 import styles from "./PokemonList.module.scss";

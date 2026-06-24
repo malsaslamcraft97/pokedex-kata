@@ -1,16 +1,13 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { PokemonDetails } from "../types/pokemonDetails";
 import { PokemonSpecies } from "../types/pokemonSpecies";
+import {
+  EnrichedPokemon,
+  RawPokemonDetail,
+  enrichPokemon,
+} from "../domain/pokemonTransformers";
 
-export type EnrichedPokemon = {
-  id: number;
-  formattedId: string;
-  name: string;
-  image: string;
-  types: string[];
-  ability?: string;
-  height?: number;
-};
+export type { EnrichedPokemon };
 
 export const pokemonApi = createApi({
   reducerPath: "pokemonApi",
@@ -49,43 +46,19 @@ export const pokemonApi = createApi({
               throw detailResult.error;
             }
 
-            const detail = detailResult.data as any;
-
-            return {
-              id: detail.id,
-              formattedId: `N°${String(detail.id).padStart(3, "0")}`,
-              name: detail.name.charAt(0).toUpperCase() + detail.name.slice(1),
-              image:
-                detail.sprites.other["home"]?.front_default ??
-                detail.sprites.other["official-artwork"].front_default,
-              types: detail.types.map(
-                (t: any) =>
-                  t.type.name.charAt(0).toUpperCase() + t.type.name.slice(1)
-              ),
-              ability: detail.abilities?.[0]?.ability?.name
-                ? detail.abilities[0].ability.name
-                    .replace("-", " ")
-                    .replace(/\b\w/g, (c: string) => c.toUpperCase())
-                : undefined,
-              height: detail.height,
-            };
+            return enrichPokemon(detailResult.data as RawPokemonDetail);
           })
         );
 
         return { data: enriched };
       },
 
-      // 👇 make all pages share same cache key
-      serializeQueryArgs: ({ endpointName }) => {
-        return endpointName;
-      },
+      serializeQueryArgs: ({ endpointName }) => endpointName,
 
-      // 👇 merge new page with existing cache
       merge: (currentCache, newItems) => {
         currentCache.push(...newItems);
       },
 
-      // 👇 refetch when offset changes
       forceRefetch({ currentArg, previousArg }) {
         return currentArg?.offset !== previousArg?.offset;
       },
